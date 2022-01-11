@@ -15,7 +15,7 @@ let rec traiter_arc_sortants arcs_sortants graph idp forbidden_nodes =
 (*ajouter une liste forbidden des noeuds déja visités pour éviter les récurssions infinies *)
 and neighbor_not_in_forbidden_nodes list_forbidden (id,lbl)=
   if List.mem id list_forbidden then false else true
-
+(*find a path between two nodes in a graph *)
 and find_path graph ids idp forbidden_nodes =
   let rec loop graph ids idp acu forbidden_nodes =
     let a_path = (Graph.find_arc graph ids idp) in 
@@ -29,7 +29,7 @@ and find_path graph ids idp forbidden_nodes =
 
   in 
   loop graph ids idp [] forbidden_nodes
-
+(*find the minimum augmentation of flow corresponding to a path *)
 let rec augmentation graph path =
   match path with 
   |None-> Int.max_int
@@ -41,7 +41,7 @@ let rec augmentation graph path =
       |Some arc -> if (arc < (augmentation graph (Some tail))) then arc else augmentation graph (Some tail)
       |None -> Int.max_int
     else Int.max_int
-
+(*decrease the value of each arc in the path of aug in the graph *)
 let rec update_flow aug path graph =
   match path with 
   |None-> graph
@@ -62,16 +62,16 @@ let rec update_flow aug path graph =
           update_flow aug (Some tail) newgraph 
       |None -> graph
     else graph
-
+(*Solve the problem of flow max *)
 let flow_max graph _source _sink =
   let rec flow_max_loop graph _source _sink max_flow =
-  let rec exist_path = find_path graph _source _sink [] in print_out_solution exist_path ;
-  match exist_path with 
-  |None-> graph 
-  |Some [] -> graph
-  |Some path -> 
-    let aug = (augmentation graph exist_path) in Printf.printf "augmentation: %d \n" aug;
-    let updated_graph = update_flow aug exist_path graph in
-    let max_flow = max_flow + aug in Printf.printf "sol: %d \n" max_flow ;
-    flow_max_loop updated_graph _source _sink max_flow
+    let rec exist_path = find_path graph _source _sink [] in print_out_solution exist_path ;
+    match exist_path with 
+    |None-> graph 
+    |Some [] -> graph
+    |Some path -> 
+      let aug = (augmentation graph exist_path) in Printf.printf "augmentation: %d \n" aug;
+      let updated_graph = update_flow aug exist_path graph in
+      let max_flow = max_flow + aug in Printf.printf "sol: %d \n" max_flow ;
+      flow_max_loop updated_graph _source _sink max_flow
   in flow_max_loop graph _source _sink 0

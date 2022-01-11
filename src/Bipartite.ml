@@ -12,7 +12,7 @@ type hacker = (string*string*string*string*string)
 type hosts = host list
 type hackers = hacker list
 
-
+(* give a list of all the hackers from the configuration file*)
 let all_hackers data_file =  
   let rec loop res=
     try
@@ -35,6 +35,7 @@ let all_hackers data_file =
   in
   loop []
 
+(*give a list of all the hosts from the configuration file *)
 let all_hosts data_file =  
   let rec loop res=
     try
@@ -75,7 +76,7 @@ let give_number_to_h list_of_h =
     |h::t-> let acu2=acu+1 in (acu,h)::(loop t acu2)
   in 
   loop list_of_h 0
-
+(*check if a hacker and a host can be put together *)
 let are_compatible ha (g,d,p,s,m,n) = 
   match ha with
   |(gender,day,pet,smoke,mixg)->
@@ -84,7 +85,7 @@ let are_compatible ha (g,d,p,s,m,n) =
               &&(String.equal s smoke)
               &&(((String.equal m "mixed")&&(String.equal mixg "mixed"))||(((String.equal m "nomixed")||(String.equal mixg "nomixed"))&&(String.equal gender g))) in res
 
-
+(*create the nodes from the list of hackers and hosts *)
 let create_nodes list_ha list_ho = 
   let rec loop list_ha list_ho graph id =
     match (list_ha, list_ho) with
@@ -93,7 +94,7 @@ let create_nodes list_ha list_ho =
     |([], h::t)-> let graph = new_node graph id in loop [] t graph (id+1)
   in 
   loop list_ha list_ho empty_graph 0
-
+(*create the arc according to the requirements of each hosts and hackers *)
 let create_arcs graph list_ha list_ho = 
   let rec loop graph list_ha list_ho len_ha len_ho =
     match (list_ha) with
@@ -124,7 +125,7 @@ let add_sink_to_graph graph list_ho len_ha=
     |(gender, day, pet, smoke, mixg, number)::t->let new_graph = (new_arc graph (len_ha+(len_ho-List.length list_ho)) (-2) number) in loop new_graph t len_ho len_ha
   in 
   loop graph list_ho (List.length list_ho) len_ha
-
+(*intermediate function used to clear the graph *)
 let remove_specific_arcs_from_nodes graph id = 
   let outa = out_arcs graph id in 
   let rec loop graph id outa = 
@@ -136,7 +137,7 @@ let remove_specific_arcs_from_nodes graph id =
   in 
   loop graph id outa 
 
-
+(*remove the source, the sink and all the reversed arc to get a graph representing a clear solution *)
 let clear_graph graph = n_fold graph remove_specific_arcs_from_nodes graph
 
 (*let clear_graph gr = let addArcModified bgr id1 id2 edg = if(id1 > id2) then new_arc bgr id1 id2 edg else bgr  in 
